@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}Dublagens{% endblock %}
+{% block content %}
+<h1 class="animated">Minhas Dublagens</h1>
+
+<div class="sort-container">
+    <label for="sort">Ordenar por:</label>
+    <select id="sort">
+        <option value="obra_asc">Obra (A-Z)</option>
+        <option value="obra_desc">Obra (Z-A)</option>
+        <option value="personagem_asc">Personagem (A-Z)</option>
+        <option value="personagem_desc">Personagem (Z-A)</option>
+        <option value="data_asc">Mais antigos</option>
+        <option value="data_desc">Mais recentes</option>
+    </select>
+</div>
+
+<div class="dublagens-grid" id="dublagens-grid">
+    {% for d in dublagens %}
+    <a href="{{ d.link }}" target="_blank" class="card animated" 
+       data-obra="{{ d.obra }}" data-personagem="{{ d.personagem }}" data-data="{{ d.data }}">
+        <div class="card-img">
+            <img src="{{ d.thumb }}" alt="{{ d.obra }}">
+        </div>
+        <div class="card-info">
+            <p><strong>Personagens:</strong> {{ d.personagem }}</p>
+            <p><strong>Obra:</strong> {{ d.obra }}</p>
+            <p><strong>Postado em:</strong> {{ d.data }}</p>
+        </div>
+    </a>
+    {% endfor %}
+</div>
+
+<script>
+    const sortSelect = document.getElementById("sort");
+    const grid = document.getElementById("dublagens-grid");
+
+    sortSelect.addEventListener("change", () => {
+        const cards = Array.from(grid.querySelectorAll(".card"));
+        const [key, order] = sortSelect.value.split("_");
+
+        cards.sort((a, b) => {
+            const valA = a.dataset[key].toLowerCase();
+            const valB = b.dataset[key].toLowerCase();
+
+            if (key === "data") {
+                return (order === "asc" ? new Date(valA) - new Date(valB) : new Date(valB) - new Date(valA));
+            }
+
+            return (order === "asc" ? valA.localeCompare(valB) : valB.localeCompare(valA));
+        });
+
+        grid.innerHTML = "";
+        cards.forEach(card => grid.appendChild(card));
+    });
+</script>
+{% endblock %}
